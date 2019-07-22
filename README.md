@@ -1,6 +1,6 @@
 # @mouseover/js-validation
 
-> This library is proof off concept.
+> This library is proof of concept.
 
 Simple js validation library slightly inspired by [knockout.validation](https://github.com/Knockout-Contrib/Knockout-Validation.git)
 
