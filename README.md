@@ -19,3 +19,7 @@ yarn:
 ```sh
 yarn add @mouseover/js-validation
 ```
+
+## License
+
+MIT
