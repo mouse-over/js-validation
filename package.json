@@ -1,8 +1,9 @@
 {
   "name": "@mouseover/js-validation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple validation library slightly inspired by knockout.validation",
   "main": "lib/validation.js",
+  "repository": "github:mouse-over/js-validation",
   "scripts": {
     "build": "rollup -c",
     "test.watch": "yarn test --watchAll",
