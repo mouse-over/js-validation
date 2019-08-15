@@ -48,3 +48,62 @@ test('validator.validateObject', () => {
         "valid": true
     });
 });
+
+test('validator.validateObject nested rules', () => {
+    const validator = createValidator(defaultRuleSet)({
+        nested: {
+            children: {
+                first: {
+                    children: {
+                        second: {
+                            children: {
+                                requiredValue: {
+                                    required: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+    const result = validator.validateObject(
+        {
+            nested: {
+                first: {
+                    second: {}
+                }
+            }
+        }
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "nested": {
+                "children": {
+                    "first": {
+                        "children": {
+                            "second": {
+                                "children": {
+                                    "requiredValue": {
+                                        "messages": [
+                                            "This field is required"
+                                        ],
+                                        "valid": false
+                                    }
+                                },
+                                "messages": [],
+                                "valid": false
+                            }
+                        },
+                        "messages": [],
+                        "valid": false
+                    }
+                },
+                "messages": [],
+                "valid": false
+            }
+        },
+        "valid": false
+    });
+});
