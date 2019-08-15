@@ -792,6 +792,11 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
+"@mouseover/js-utils@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@mouseover/js-utils/-/js-utils-0.0.1.tgz#e12655bae19746d9cd41a193a7457fd12d905b18"
+  integrity sha512-S0oBWCwAZ/gFm74wQw1JwYCoiC2xr7rU5JhSnLw12mLBJ+1cc3HkFBft5CVJk4JkiNz76RwuibAnjjTuRCTozA==
+
 "@types/babel__core@^7.1.0":
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.2.tgz#608c74f55928033fce18b99b213c16be4b3d114f"

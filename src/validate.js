@@ -1,4 +1,4 @@
-import {isEmail, isEmpty, isObject, isRequired, isValidMax, isValidMaxLength, isValidMin, isValidMinLength, isValidPattern} from "./utils";
+import {isEmail, isEmpty, isObject, isRequired, isValidMax, isValidMaxLength, isValidMin, isValidMinLength, isValidPattern} from "@mouseover/js-utils";
 
 export const formatMessage = (message, params, value) => {
     if (isObject(params)) {
