@@ -404,3 +404,20 @@ test('getRuleOnPath', () => {
         required: true
     });
 });
+
+
+test('validateField callback provides rules', () => {
+
+    const rulesWithCallback = {
+        minTest: () => rules.minTest
+    };
+
+    expect(
+        validateField(9, rulesWithCallback, 'minTest')
+    ).toStrictEqual({
+        messages: [
+            "Please enter at least 2 characters."
+        ],
+        valid: false
+    });
+});

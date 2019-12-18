@@ -1,16 +1,15 @@
 import {isEmail, isEmpty, isObject, isRequired, isValidMax, isValidMaxLength, isValidMin, isValidMinLength, isValidPattern} from "@mouseover/js-utils";
 
-export const formatMessage = (message, params, value) => {
-    if (isObject(params)) {
-        params = params.value;
-    }
-    if (typeof message === 'function') {
-        return message(params, value);
-    }
-    var replacements = params;
-    if (replacements == null) {
-        replacements = [];
-    }
+/**
+ * Format message by replacing each indexed placeholder '{index}' with appropriate value from replacements
+ *
+ * If replacement is not array, then it's used as value on 0 position
+ *
+ * @param {string} message
+ * @param {array|object|any} replacements
+ * @returns {*|void|string}
+ */
+const formatMessage = (message, replacements = []) => {
     if (!Array.isArray(replacements)) {
         replacements = [replacements];
     }
@@ -20,6 +19,28 @@ export const formatMessage = (message, params, value) => {
         }
         return match;
     });
+};
+
+/**
+ * Creates validation message
+ *
+ * Message can by function for customizing message
+ * Message can contain placeholders
+ *
+ * @param {string|function} message
+ * @param {array|object|any} params
+ * @param value
+ *
+ * @returns {*|void|string}
+ */
+export const createMessage = (message, params, value) => {
+    if (isObject(params)) {
+        params = params.value;
+    }
+    if (typeof message === 'function') {
+        return message(params, value);
+    }
+    return formatMessage(message, params);
 };
 
 export const defaultRuleSet = {
@@ -64,12 +85,18 @@ const validateFieldRule = (value, rule, params) => {
     const valid = rule.validate(value, context.params === undefined ? true : context.params);
 
     if (!valid) {
-        return formatMessage(context.message || rule.message, context.params, value);
+        return createMessage(context.message || rule.message, context.params, value);
     }
 
     return true;
 };
 
+/**
+ * Check if field rules contains required rule. If so return true
+ *
+ * @param rules
+ * @returns {boolean|*}
+ */
 const isRequiredByRules = (rules) => {
     if (!rules.hasOwnProperty('required')) {
         return false; // not defined, not required
@@ -91,6 +118,10 @@ const validateFieldRules = (value, rules, ruleSet = defaultRuleSet) => {
 
     if (isEmpty(value) && !isRequiredByRules(rules)) {
         return {valid: true, messages: []}; // is empty and not required, nothing to do...
+    }
+
+    if (typeof rules === 'function') {
+        rules = rules(value);
     }
 
     const result = Object.entries(rules).reduce((result, [key, params]) => {

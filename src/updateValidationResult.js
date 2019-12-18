@@ -11,6 +11,15 @@ const updateChildren = (state, name, values) => {
 
     return newState;
 };
+
+/**
+ * Updates validation results
+ *
+ * @param state
+ * @param name
+ * @param validation
+ * @returns {{children}}
+ */
 export const updateValidationResult = (state, name, validation) => {
     if (Array.isArray(name)) {
         const path = [...name];
