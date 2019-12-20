@@ -421,3 +421,30 @@ test('validateField callback provides rules', () => {
         valid: false
     });
 });
+
+test('validateObject with callback provides rules', () => {
+    const rulesWithCallback = {
+        minTest: (results) => {
+            console.log(results);
+            return rules.minTest;
+        }
+    };
+
+    const result = validateObject(
+        {
+            minTest: 12,
+            noRules: 'foo'
+        },
+        rulesWithCallback
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "messages": [],
+                "valid": true
+            }
+        },
+        "valid": true
+    });
+});
