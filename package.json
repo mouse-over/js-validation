@@ -1,6 +1,6 @@
 {
   "name": "@mouseover/js-validation",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Simple validation library slightly inspired by knockout.validation",
   "main": "lib/validation.js",
   "repository": "github:mouse-over/js-validation",
@@ -18,8 +18,8 @@
     "dist"
   ],
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
     "babel-jest": "^24.8.0",
     "jest": "^24.8.0",
     "rollup": "^1.17.0",
@@ -29,6 +29,6 @@
     "testRegex": "(/test/.*\\.test\\.js)$"
   },
   "dependencies": {
-    "@mouseover/js-utils": "^0.0.1"
+    "@mouseover/js-utils": "^0.0.2"
   }
 }
