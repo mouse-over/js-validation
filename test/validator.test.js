@@ -49,6 +49,22 @@ test('validator.validateObject', () => {
     });
 });
 
+test('validator.validateObjectField', () => {
+    const validator = createValidator(defaultRuleSet)(rules);
+    const result = validator.validateObjectField(
+        {
+            minTest: 12,
+            noRules: 'foo'
+        },
+        'minTest'
+    );
+
+    expect(result).toStrictEqual({
+        "messages": [],
+        "valid": true
+    });
+});
+
 test('validator.validateObject nested rules', () => {
     const validator = createValidator(defaultRuleSet)({
         nested: {

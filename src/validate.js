@@ -1,4 +1,16 @@
-import {isEmail, isEmpty, isObject, isRequired, isValidMax, isValidMaxLength, isValidMin, isValidMinLength, isValidPattern} from "@mouseover/js-utils";
+import {
+    isEmail,
+    isEmpty,
+    isObject,
+    isRequired,
+    isValidMax,
+    isValidMaxLength,
+    isValidMin,
+    isValidMinLength,
+    isValidPattern,
+    getValue
+} from "@mouseover/js-utils";
+
 
 /**
  * Format message by replacing each indexed placeholder '{index}' with appropriate value from replacements
@@ -74,6 +86,14 @@ export const defaultRuleSet = {
     }
 };
 
+/**
+ * Validate single field rule using given params
+ *
+ * @param value
+ * @param rule
+ * @param params
+ * @returns {*|void|string|boolean}
+ */
 const validateFieldRule = (value, rule, params) => {
     let context;
     if (isObject(params)) {
@@ -94,37 +114,45 @@ const validateFieldRule = (value, rule, params) => {
 /**
  * Check if field rules contains required rule. If so return true
  *
- * @param rules
+ * @param fieldRules
  * @returns {boolean|*}
  */
-const isRequiredByRules = (rules) => {
-    if (!rules.hasOwnProperty('required')) {
+const isRequiredByRules = (fieldRules) => {
+    if (!fieldRules.hasOwnProperty('required')) {
         return false; // not defined, not required
     }
 
-    if (isObject(rules.required)) {
-        if (rules.required.hasOwnProperty('required')) {
-            return rules.required.params;
+    if (isObject(fieldRules.required)) {
+        if (fieldRules.required.hasOwnProperty('required')) {
+            return fieldRules.required.params;
         }
 
         return true;
     }
 
-    return rules.required;
+    return fieldRules.required;
 };
 
-const validateFieldRules = (value, rules, ruleSet = defaultRuleSet) => {
-    rules = rules || {};
+/**
+ * Validate given value with given rules using ruleSet
+ *
+ * @param value
+ * @param fieldRules
+ * @param ruleSet
+ * @returns {{valid: boolean, messages: unknown}|{valid: boolean, messages: []}}
+ */
+const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
+    fieldRules = fieldRules || {};
 
-    if (isEmpty(value) && !isRequiredByRules(rules)) {
+    if (isEmpty(value) && !isRequiredByRules(fieldRules)) {
         return {valid: true, messages: []}; // is empty and not required, nothing to do...
     }
 
-    if (typeof rules === 'function') {
-        rules = rules(value);
+    if (typeof fieldRules === 'function') {
+        fieldRules = fieldRules();
     }
 
-    const result = Object.entries(rules).reduce((result, [key, params]) => {
+    const result = Object.entries(fieldRules).reduce((result, [key, params]) => {
         if (ruleSet.hasOwnProperty(key)) {
             result[key] = validateFieldRule(value, ruleSet[key], params);
         } else {
@@ -144,7 +172,14 @@ const validateFieldRules = (value, rules, ruleSet = defaultRuleSet) => {
     };
 };
 
-export const getRuleOnPath = (rules, name) => {
+/**
+ * Return's field rules on given name/path
+ *
+ * @param fieldsRules
+ * @param name
+ * @returns {*|null}
+ */
+export const getRulesOnPath = (fieldsRules, name) => {
     if (Array.isArray(name)) {
         const path = [...name];
         const current = path.shift();
@@ -152,27 +187,47 @@ export const getRuleOnPath = (rules, name) => {
         if (path.length === 0) {
             name = current;
         } else {
-            return getRuleOnPath(rules[current] && rules[current].children ? rules[current].children : {}, path);
+            return getRulesOnPath(fieldsRules[current] && fieldsRules[current].children ? fieldsRules[current].children : {}, path);
         }
     }
 
-    return rules[name] || null;
+    return fieldsRules[name] || null;
 };
 
-export const validateField = (value, rules, name, ruleSet = defaultRuleSet) => {
-    if (!rules) {
+/**
+ * Validate value with rules in fieldsRules if any
+ *
+ * @param value
+ * @param fieldsRules
+ * @param name
+ * @param ruleSet
+ * @returns {{valid: boolean, messages: unknown}|{valid: boolean, messages: *[]}|{valid: boolean, messages: []}}
+ */
+export const validateField = (value, fieldsRules, name, ruleSet = defaultRuleSet) => {
+    if (!fieldsRules) {
         return {valid: true, messages: []};
     }
-    const rule = getRuleOnPath(rules, name);
-    return validateFieldRules(value, rule, ruleSet);
+
+    return validateFieldRules(
+        value,
+        getRulesOnPath(fieldsRules, name),
+        ruleSet);
 };
 
-export const validateObject = (object, rules, ruleSet = defaultRuleSet) => {
-    const result = Object.entries(rules).reduce((result, [key, rule]) => {
+/**
+ * Validate given object against given fields rules
+ * @param object
+ * @param fieldsRules
+ * @param ruleSet
+ * @returns {{valid: boolean, children: {}}}
+ */
+export const validateObject = (object, fieldsRules, ruleSet = defaultRuleSet) => {
+    const result = Object.entries(fieldsRules).reduce((result, [key,rules]) => {
         const value = object[key];
-        result[key] = validateFieldRules(value, rule, ruleSet);
-        if (isObject(rule) && rule.hasOwnProperty('children')) {
-            const childrenResult = validateObject(value, rule.children, ruleSet);
+        const fieldRules = prepareRules(rules, object);
+        result[key] = validateFieldRules(value, fieldRules, ruleSet);
+        if (isObject(fieldRules) && fieldRules.hasOwnProperty('children')) {
+            const childrenResult = validateObject(value, fieldRules.children, ruleSet);
             result[key].children = childrenResult.children;
             if (!childrenResult.valid) {
                 result[key].valid = false;
@@ -185,6 +240,44 @@ export const validateObject = (object, rules, ruleSet = defaultRuleSet) => {
         children: result,
         valid: Object.values(result).every((current) => current && current.valid === true)
     }
+};
+
+/**
+ * Validate single object field against rules in given fields rules.
+ * Difference between this function and validateField is that this validation
+ * has whole object context (same as when validation whole object with validateObject)
+ *
+ * @param object
+ * @param name
+ * @param fieldsRules
+ * @param ruleSet
+ * @returns {{valid: boolean, messages: unknown}|{valid: boolean, messages: *[]}|{valid: boolean, messages: []}}
+ */
+export const validateObjectField = (object, name, fieldsRules, ruleSet = defaultRuleSet) => {
+    if (!fieldsRules) {
+        return {valid: true, messages: []};
+    }
+
+    const fieldRules = getRulesOnPath(fieldsRules, name);
+    return validateFieldRules(
+        getValue(object, name),
+        prepareRules(fieldRules, object),
+        ruleSet
+    );
+};
+
+/**
+ * Prepare filed Rules
+ *
+ * @param fieldRules
+ * @param values
+ * @returns {*}
+ */
+const prepareRules = (fieldRules, values) => {
+    if (typeof fieldRules === 'function') {
+        fieldRules = fieldRules(values);
+    }
+    return fieldRules;
 };
 
 export default validateField;

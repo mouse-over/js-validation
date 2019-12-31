@@ -1,6 +1,6 @@
 {
   "name": "@mouseover/js-validation",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Simple validation library slightly inspired by knockout.validation",
   "main": "lib/validation.js",
   "repository": "github:mouse-over/js-validation",

@@ -1,6 +1,6 @@
 import {
-    getRuleOnPath,
-    validateField, validateObject
+    getRulesOnPath,
+    validateField, validateObject, validateObjectField
 } from "../src/validate";
 import {updateValidationResult} from "../src/updateValidationResult";
 
@@ -399,7 +399,7 @@ test('getRuleOnPath', () => {
         }
     };
 
-    const rule = getRuleOnPath(rules, ['contact', 'contactFirstname']);
+    const rule = getRulesOnPath(rules, ['contact', 'contactFirstname']);
     expect(rule).toStrictEqual({
         required: true
     });
@@ -423,18 +423,20 @@ test('validateField callback provides rules', () => {
 });
 
 test('validateObject with callback provides rules', () => {
+    const object = {
+        minTest: 12,
+        noRules: 'foo'
+    };
+
     const rulesWithCallback = {
-        minTest: (results) => {
-            console.log(results);
+        minTest: (values) => {
+            expect(values).toStrictEqual(object);
             return rules.minTest;
         }
     };
 
     const result = validateObject(
-        {
-            minTest: 12,
-            noRules: 'foo'
-        },
+        object,
         rulesWithCallback
     );
 
@@ -446,5 +448,16 @@ test('validateObject with callback provides rules', () => {
             }
         },
         "valid": true
+    });
+});
+
+test('validateObjectField failed with minLength', () => {
+    expect(
+        validateObjectField({minTest: 9}, 'minTest', rules)
+    ).toStrictEqual({
+        messages: [
+            "Please enter at least 2 characters."
+        ],
+        valid: false
     });
 });
