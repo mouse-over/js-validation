@@ -29,6 +29,6 @@
     "testRegex": "(/test/.*\\.test\\.js)$"
   },
   "dependencies": {
-    "@mouseover/js-utils": "^0.0.2"
+    "@mouseover/js-utils": "0.0.x"
   }
 }
