@@ -972,9 +972,9 @@
     "@types/yargs" "^13.0.0"
 
 "@mouseover/js-utils@0.0.x":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@mouseover/js-utils/-/js-utils-0.0.7.tgz#bc4c4a96f5ff9f374b3e4cb219743c4071242a82"
-  integrity sha512-T7uHLsCDFSyVDpKe6Qj06moqT/Y4fq4kWTXlZg+dSb0k9fSFNt1W96OpXuq3BnljvgiN/IFrHNi6zZd9hVIm7Q==
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@mouseover/js-utils/-/js-utils-0.0.8.tgz#343fc433a41ea7e270b1f8f24d3a0ae39fc08b5c"
+  integrity sha512-5DVRPY7ZLnEKe3J+ZDpQ3YyFKRb4b0rzimDqAv6mDi4G4iJptm1MStYY6X/mHRBi7QuIv6I15eSFm9T6XFnGXA==
 
 "@types/babel__core@^7.1.0":
   version "7.1.12"
