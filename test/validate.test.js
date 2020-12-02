@@ -2,7 +2,7 @@ import {
     getRulesOnPath,
     validateField, validateObject, validateObjectField
 } from "../src/validate";
-import {updateValidationResult} from "../src/updateValidationResult";
+import {updateValidationResult} from "../src";
 
 const rules = {
     minTest: {
@@ -459,5 +459,39 @@ test('validateObjectField failed with minLength', () => {
             "Please enter at least 2 characters."
         ],
         valid: false
+    });
+});
+
+test('validateObject with custom rule', () => {
+    const object = {
+        minTest: 12,
+        noRules: 'foo'
+    };
+
+    const callbackRules = {
+        minTest: {
+            custom:{
+                message: 'Is not valid!',
+                validate: (value) => {
+                    expect(value).toBe(12);
+                    return false;
+                }
+            }
+        }
+    };
+
+    const result = validateObject(
+        object,
+        callbackRules
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "messages": [ "Is not valid!"],
+                "valid": false
+            }
+        },
+        "valid": false
     });
 });

@@ -155,6 +155,8 @@ const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
     const result = Object.entries(fieldRules).reduce((result, [key, params]) => {
         if (ruleSet.hasOwnProperty(key)) {
             result[key] = validateFieldRule(value, ruleSet[key], params);
+        } else if (isObject(params) && params.hasOwnProperty('message') && params.hasOwnProperty('validate')) {
+            result[key] = validateFieldRule(value, params);
         } else {
             result[key] = true;
         }
