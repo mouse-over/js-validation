@@ -1,5 +1,5 @@
 import {defaultRuleSet} from "../src/validate";
-import {createValidator} from "../src/validator";
+import {createValidator} from "../src";
 
 const rules = {
     minTest: {
@@ -117,6 +117,44 @@ test('validator.validateObject nested rules', () => {
                     }
                 },
                 "messages": [],
+                "valid": false
+            }
+        },
+        "valid": false
+    });
+});
+
+test('validator.validateObject with undefined values', () => {
+    const validator = createValidator(defaultRuleSet)(rules);
+    const result = validator.validateObject(undefined);
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "messages": [
+                    "Please set!",
+                    "Please enter value less than 5.",
+                    "Please enter at least 2 characters."
+                ],
+                "valid": false
+            }
+        },
+        "valid": false
+    });
+});
+
+test('validator.validateObject with null values', () => {
+    const validator = createValidator(defaultRuleSet)(rules);
+    const result = validator.validateObject(undefined);
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "messages": [
+                    "Please set!",
+                    "Please enter value less than 5.",
+                    "Please enter at least 2 characters."
+                ],
                 "valid": false
             }
         },

@@ -225,7 +225,7 @@ export const validateField = (value, fieldsRules, name, ruleSet = defaultRuleSet
  */
 export const validateObject = (object, fieldsRules, ruleSet = defaultRuleSet) => {
     const result = Object.entries(fieldsRules).reduce((result, [key,rules]) => {
-        const value = object[key];
+        const value = object ? object[key] : undefined;
         const fieldRules = prepareRules(rules, object);
         result[key] = validateFieldRules(value, fieldRules, ruleSet);
         if (isObject(fieldRules) && fieldRules.hasOwnProperty('children')) {
