@@ -28,7 +28,7 @@ test('validateField failed with minLength and min', () => {
         validateField(3, rules, 'minTest')
     ).toStrictEqual({
         messages: [
-            "Please enter value less than 5.",
+            "Please enter value greater than 5.",
             "Please enter at least 2 characters."
         ],
         valid: false
@@ -41,7 +41,7 @@ test('validateField failed not set at all with custom rule message', () => {
     ).toStrictEqual({
         messages: [
             "Please set!",
-            "Please enter value less than 5.",
+            "Please enter value greater than 5.",
             "Please enter at least 2 characters."
         ],
         valid: false
@@ -52,7 +52,7 @@ test('validateField failed not set at all with custom rule message', () => {
     ).toStrictEqual({
         messages: [
             "Please set!",
-            "Please enter value less than 5.",
+            "Please enter value greater than 5.",
             "Please enter at least 2 characters."
         ],
         valid: false
@@ -63,7 +63,7 @@ test('validateField failed not set at all with custom rule message', () => {
     ).toStrictEqual({
         messages: [
             "Please set!",
-            "Please enter value less than 5.",
+            "Please enter value greater than 5.",
             "Please enter at least 2 characters."
         ],
         valid: false
@@ -493,5 +493,101 @@ test('validateObject with custom rule', () => {
             }
         },
         "valid": false
+    });
+});
+
+test('validateObjectField array - invalid', () => {
+    expect(
+        validateObjectField({
+                minTest: [12, 24, 2]
+            }, 'minTest',
+            {
+                minTest: {
+                    items: rules.minTest,
+                    isArray: true
+                }
+            })
+    ).toStrictEqual({
+        "items": [
+            {
+                "messages": [],
+                "valid": true
+            },
+            {
+                "messages": [],
+                "valid": true
+            },
+            {
+                "messages": [
+                    "Please enter value greater than 5.",
+                    "Please enter at least 2 characters."
+                ],
+                "valid": false
+            }
+        ],
+        "messages": [],
+        "valid": false
+    });
+});
+
+test('validateObjectField array - valid', () => {
+    expect(
+        validateObjectField({
+                minTest: [12, 24, 22]
+            }, 'minTest',
+            {
+                minTest: {
+                    items: rules.minTest,
+                    isArray: true
+                }
+            })
+    ).toStrictEqual({
+        "items": [
+            {
+                "messages": [],
+                "valid": true
+            },
+            {
+                "messages": [],
+                "valid": true
+            },
+            {
+                "messages": [],
+                "valid": true
+            }
+        ],
+        "messages": [],
+        "valid": true
+    });
+});
+
+test('validate object with array', () => {
+    const result = validateObject(
+        {
+            minTest: [12],
+            noRules: 'foo'
+        },
+        {
+            minTest: {
+                items: rules.minTest,
+                isArray: true
+            }
+        }
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "items": [
+                    {
+                        "messages": [],
+                        "valid": true
+                    }
+                ],
+                "messages": [],
+                "valid": true
+            }
+        },
+        "valid": true
     });
 });

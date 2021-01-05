@@ -133,7 +133,7 @@ test('validator.validateObject with undefined values', () => {
             "minTest": {
                 "messages": [
                     "Please set!",
-                    "Please enter value less than 5.",
+                    "Please enter value greater than 5.",
                     "Please enter at least 2 characters."
                 ],
                 "valid": false
@@ -152,9 +152,72 @@ test('validator.validateObject with null values', () => {
             "minTest": {
                 "messages": [
                     "Please set!",
-                    "Please enter value less than 5.",
+                    "Please enter value greater than 5.",
                     "Please enter at least 2 characters."
                 ],
+                "valid": false
+            }
+        },
+        "valid": false
+    });
+});
+
+test('validator.validateObject with array', () => {
+    const validator = createValidator(defaultRuleSet)({
+        minTest: {
+            items: rules.minTest,
+            isArray: true
+        }
+    });
+    const result = validator.validateObject(
+        {
+            minTest: [12]
+        }
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "items": [
+                    {
+                        "messages": [],
+                        "valid": true
+                    }
+                ],
+                "messages": [],
+                "valid": true
+            }
+        },
+        "valid": true
+    });
+});
+
+test('validator.validateObject with array invalid', () => {
+    const validator = createValidator(defaultRuleSet)({
+        minTest: {
+            items: rules.minTest,
+            isArray: true
+        }
+    });
+    const result = validator.validateObject(
+        {
+            minTest: [2]
+        }
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "minTest": {
+                "items": [
+                    {
+                        "messages": [
+                            "Please enter value greater than 5.",
+                            "Please enter at least 2 characters."
+                        ],
+                        "valid": false
+                    }
+                ],
+                "messages": [],
                 "valid": false
             }
         },

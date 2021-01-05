@@ -70,11 +70,11 @@ export const defaultRuleSet = {
     },
     min: {
         validate: isValidMin,
-        message: 'Please enter value less than {0}.'
+        message: 'Please enter value greater than {0}.'
     },
     max: {
         validate: isValidMax,
-        message: 'Please enter value greater than {0}.'
+        message: 'Please enter value less than {0}.'
     },
     email: {
         validate: isEmail,
@@ -83,6 +83,14 @@ export const defaultRuleSet = {
     pattern: {
         validate: isValidPattern,
         message: 'Please provide valid value'
+    },
+    isArray: {
+        validate: (value, must) => must && Array.isArray(value),
+        message: 'Please enter valid value.'
+    },
+    typeOf: {
+        validate: (value, type) => typeof  value === type,
+        message: 'Please enter value of type {0}.'
     }
 };
 
@@ -133,6 +141,17 @@ const isRequiredByRules = (fieldRules) => {
     return fieldRules.required;
 };
 
+function createFieldValidationSummary(result) {
+    let valid = Object.values(result).every((current) => current === true);
+    const messages = Object.values(result).reduce((messages, current) => {
+        if (current !== true) {
+            messages.push(current);
+        }
+        return messages;
+    }, []);
+    return {valid, messages};
+}
+
 /**
  * Validate given value with given rules using ruleSet
  *
@@ -152,27 +171,37 @@ const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
         fieldRules = fieldRules();
     }
 
-    const result = Object.entries(fieldRules).reduce((result, [key, params]) => {
-        if (ruleSet.hasOwnProperty(key)) {
-            result[key] = validateFieldRule(value, ruleSet[key], params);
-        } else if (isObject(params) && params.hasOwnProperty('message') && params.hasOwnProperty('validate')) {
-            result[key] = validateFieldRule(value, params);
-        } else {
-            result[key] = true;
+    const {items, ...rules} = fieldRules;
+
+    const result = Object.entries(rules).reduce((result, [key, params]) => {
+        const [rule, ruleParams] = getRuleFromRuleSet(ruleSet, key, params);
+        if (rule) {
+            result[key] = rule ? validateFieldRule(value, rule, ruleParams) : true;
         }
         return result;
     }, {});
 
-    return {
-        valid: Object.values(result).every((current) => current === true),
-        messages: Object.values(result).reduce((messages, current) => {
-            if (current !== true) {
-                messages.push(current);
-            }
-            return messages;
-        }, [])
-    };
+    const fieldValidationSummary = createFieldValidationSummary(result);
+
+    if (items) {
+        fieldValidationSummary.items = value.map((itemValue) => validateFieldRules(itemValue, items, ruleSet));
+        if (fieldValidationSummary.items.find((item) => !item.valid)) {
+            fieldValidationSummary.valid = false;
+        }
+    }
+
+    return fieldValidationSummary;
 };
+
+const getRuleFromRuleSet = (ruleSet, key, params) => {
+    if (ruleSet.hasOwnProperty(key)) {
+       return [ruleSet[key], params]
+    } else if (isObject(params) && params.hasOwnProperty('message') && params.hasOwnProperty('validate')) {
+        return [params, null];
+    }
+    return [null, null];
+}
+
 
 /**
  * Return's field rules on given name/path
@@ -259,7 +288,6 @@ export const validateObjectField = (object, name, fieldsRules, ruleSet = default
     if (!fieldsRules) {
         return {valid: true, messages: []};
     }
-
     const fieldRules = getRulesOnPath(fieldsRules, name);
     return validateFieldRules(
         getValue(object, name),
