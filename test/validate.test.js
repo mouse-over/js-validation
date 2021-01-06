@@ -591,3 +591,93 @@ test('validate object with array', () => {
         "valid": true
     });
 });
+
+test('validate object with array of objects valid', () => {
+    const result = validateObject(
+        {
+            collection: [
+                {minTest: 12}
+            ]
+        },
+        {
+            collection: {
+                items: {children: {minTest: rules.minTest}},
+                isArray: true
+            }
+        }
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "collection": {
+                "items": [
+                    {
+                        "children": {
+                            "minTest": {
+                                "messages": [],
+                                "valid": true
+                            }
+                        },
+                        "messages": [],
+                        "valid": true
+                    }
+                ],
+                "messages": [],
+                "valid": true
+            }
+        },
+        "valid": true
+    });
+});
+
+test('validate object with array of objects invalid', () => {
+    const result = validateObject(
+        {
+            collection: [
+                {minTest: 12},
+                {minTest: 2}
+            ]
+        },
+        {
+            collection: {
+                items: {children: {minTest: rules.minTest}},
+                isArray: true
+            }
+        }
+    );
+
+    expect(result).toStrictEqual({
+        "children": {
+            "collection": {
+                "items": [
+                    {
+                        "children": {
+                            "minTest": {
+                                "messages": [],
+                                "valid": true
+                            }
+                        },
+                        "messages": [],
+                        "valid": true
+                    },
+                    {
+                        "children": {
+                            "minTest": {
+                                "messages": [
+                                    "Please enter value greater than 5.",
+                                    "Please enter at least 2 characters."
+                                ],
+                                "valid": false
+                            }
+                        },
+                        "messages": [],
+                        "valid": false
+                    }
+                ],
+                "messages": [],
+                "valid": false
+            }
+        },
+        "valid": false
+    });
+});

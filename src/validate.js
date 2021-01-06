@@ -141,17 +141,6 @@ const isRequiredByRules = (fieldRules) => {
     return fieldRules.required;
 };
 
-function createFieldValidationSummary(result) {
-    let valid = Object.values(result).every((current) => current === true);
-    const messages = Object.values(result).reduce((messages, current) => {
-        if (current !== true) {
-            messages.push(current);
-        }
-        return messages;
-    }, []);
-    return {valid, messages};
-}
-
 /**
  * Validate given value with given rules using ruleSet
  *
@@ -171,10 +160,10 @@ const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
         fieldRules = fieldRules();
     }
 
-    const {items, ...rules} = fieldRules;
+    const {items, children, ...rules} = fieldRules;
 
     const result = Object.entries(rules).reduce((result, [key, params]) => {
-        const [rule, ruleParams] = getRuleFromRuleSet(ruleSet, key, params);
+        const [rule, ruleParams] = determineRule(ruleSet, key, params);
         if (rule) {
             result[key] = rule ? validateFieldRule(value, rule, ruleParams) : true;
         }
@@ -184,18 +173,69 @@ const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
     const fieldValidationSummary = createFieldValidationSummary(result);
 
     if (items) {
-        fieldValidationSummary.items = value.map((itemValue) => validateFieldRules(itemValue, items, ruleSet));
-        if (fieldValidationSummary.items.find((item) => !item.valid)) {
-            fieldValidationSummary.valid = false;
-        }
+        const itemsResult = validateArray(value, items, ruleSet);
+        fieldValidationSummary.items = itemsResult.result;
+        fieldValidationSummary.valid = fieldValidationSummary.valid && itemsResult.valid;
+    }
+
+    if (children) {
+        const childrenResult = validateObject(value, children, ruleSet);
+        fieldValidationSummary.children = childrenResult.children;
+        fieldValidationSummary.valid = fieldValidationSummary.valid && childrenResult.valid;
     }
 
     return fieldValidationSummary;
 };
 
-const getRuleFromRuleSet = (ruleSet, key, params) => {
-    if (ruleSet.hasOwnProperty(key)) {
-       return [ruleSet[key], params]
+/**
+ * Validate array of values with given rules using ruleSet
+ * @param arrayItems
+ * @param fieldRules
+ * @param ruleSet
+ * @returns {{result: *, valid: boolean}}
+ */
+const validateArray = (arrayItems, fieldRules, ruleSet) => {
+    const result = arrayItems.map((item) => validateFieldRules(item, fieldRules, ruleSet));
+    return {
+        result,
+        valid: Object.values(result).every((itemResult) => itemResult.valid === true)
+    }
+}
+
+/**
+ * Summarize validation result
+ *
+ * @param result
+ * @returns {{valid: boolean, messages: unknown}}
+ */
+const createFieldValidationSummary = (result) => {
+    const valid = isAllResultsValid(result);
+    return {
+        valid,
+        messages: valid ? [] : resultMessages(result)
+    };
+}
+
+const isAllResultsValid = (result) => {
+    return Object.values(result).every((current) => current === true);
+}
+
+const resultMessages = (result) => {
+    return Object.values(result).filter((current) => current !== true);
+}
+
+/**
+ * Return's rule for given params
+ *
+ * @param ruleSet
+ * @param ruleName
+ * @param params
+ *
+ * @returns {[{validate}|{message}|*, null]|[*, *]|[null, null]} Rule and it's params if provided
+ */
+const determineRule = (ruleSet, ruleName, params) => {
+    if (ruleSet.hasOwnProperty(ruleName)) {
+       return [ruleSet[ruleName], params]
     } else if (isObject(params) && params.hasOwnProperty('message') && params.hasOwnProperty('validate')) {
         return [params, null];
     }
@@ -257,13 +297,6 @@ export const validateObject = (object, fieldsRules, ruleSet = defaultRuleSet) =>
         const value = object ? object[key] : undefined;
         const fieldRules = prepareRules(rules, object);
         result[key] = validateFieldRules(value, fieldRules, ruleSet);
-        if (isObject(fieldRules) && fieldRules.hasOwnProperty('children')) {
-            const childrenResult = validateObject(value, fieldRules.children, ruleSet);
-            result[key].children = childrenResult.children;
-            if (!childrenResult.valid) {
-                result[key].valid = false;
-            }
-        }
         return result;
     }, {});
 
