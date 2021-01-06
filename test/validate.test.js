@@ -508,23 +508,23 @@ test('validateObjectField array - invalid', () => {
                 }
             })
     ).toStrictEqual({
-        "items": [
-            {
+        "children": {
+            "0": {
                 "messages": [],
                 "valid": true
             },
-            {
+            "1": {
                 "messages": [],
                 "valid": true
             },
-            {
+            "2": {
                 "messages": [
                     "Please enter value greater than 5.",
                     "Please enter at least 2 characters."
                 ],
                 "valid": false
             }
-        ],
+        },
         "messages": [],
         "valid": false
     });
@@ -542,20 +542,20 @@ test('validateObjectField array - valid', () => {
                 }
             })
     ).toStrictEqual({
-        "items": [
-            {
+        "children": {
+            "0": {
                 "messages": [],
                 "valid": true
             },
-            {
+            "1": {
                 "messages": [],
                 "valid": true
             },
-            {
+            "2": {
                 "messages": [],
                 "valid": true
             }
-        ],
+        },
         "messages": [],
         "valid": true
     });
@@ -578,12 +578,12 @@ test('validate object with array', () => {
     expect(result).toStrictEqual({
         "children": {
             "minTest": {
-                "items": [
-                    {
+                "children": {
+                    "0": {
                         "messages": [],
                         "valid": true
                     }
-                ],
+                },
                 "messages": [],
                 "valid": true
             }
@@ -610,8 +610,8 @@ test('validate object with array of objects valid', () => {
     expect(result).toStrictEqual({
         "children": {
             "collection": {
-                "items": [
-                    {
+                "children": {
+                    "0": {
                         "children": {
                             "minTest": {
                                 "messages": [],
@@ -621,7 +621,7 @@ test('validate object with array of objects valid', () => {
                         "messages": [],
                         "valid": true
                     }
-                ],
+                },
                 "messages": [],
                 "valid": true
             }
@@ -649,8 +649,8 @@ test('validate object with array of objects invalid', () => {
     expect(result).toStrictEqual({
         "children": {
             "collection": {
-                "items": [
-                    {
+                "children": {
+                    "0": {
                         "children": {
                             "minTest": {
                                 "messages": [],
@@ -660,7 +660,7 @@ test('validate object with array of objects invalid', () => {
                         "messages": [],
                         "valid": true
                     },
-                    {
+                    "1": {
                         "children": {
                             "minTest": {
                                 "messages": [
@@ -673,7 +673,7 @@ test('validate object with array of objects invalid', () => {
                         "messages": [],
                         "valid": false
                     }
-                ],
+                },
                 "messages": [],
                 "valid": false
             }

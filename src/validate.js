@@ -174,7 +174,7 @@ const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
 
     if (items) {
         const itemsResult = validateArray(value, items, ruleSet);
-        fieldValidationSummary.items = itemsResult.result;
+        fieldValidationSummary.children = itemsResult.children;
         fieldValidationSummary.valid = fieldValidationSummary.valid && itemsResult.valid;
     }
 
@@ -195,11 +195,11 @@ const validateFieldRules = (value, fieldRules, ruleSet = defaultRuleSet) => {
  * @returns {{result: *, valid: boolean}}
  */
 const validateArray = (arrayItems, fieldRules, ruleSet) => {
-    const result = arrayItems.map((item) => validateFieldRules(item, fieldRules, ruleSet));
-    return {
-        result,
-        valid: Object.values(result).every((itemResult) => itemResult.valid === true)
-    }
+    return arrayItems.reduce((current, item, index) => {
+        current.children[index] = validateFieldRules(item, fieldRules, ruleSet);
+        current.valid = current.valid && current.children[index].valid;
+        return current;
+    }, {children: {}, valid: true});
 }
 
 /**

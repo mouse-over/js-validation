@@ -178,12 +178,12 @@ test('validator.validateObject with array', () => {
     expect(result).toStrictEqual({
         "children": {
             "minTest": {
-                "items": [
-                    {
+                "children": {
+                    0: {
                         "messages": [],
                         "valid": true
                     }
-                ],
+                },
                 "messages": [],
                 "valid": true
             }
@@ -208,15 +208,15 @@ test('validator.validateObject with array invalid', () => {
     expect(result).toStrictEqual({
         "children": {
             "minTest": {
-                "items": [
-                    {
+                "children": {
+                    "0": {
                         "messages": [
                             "Please enter value greater than 5.",
                             "Please enter at least 2 characters."
                         ],
                         "valid": false
                     }
-                ],
+                },
                 "messages": [],
                 "valid": false
             }
