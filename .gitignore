@@ -4,3 +4,5 @@ node_modules
 dist
 lib
 .idea
+yarn.lock
+package-lock.json
