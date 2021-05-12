@@ -224,3 +224,34 @@ test('validator.validateObject with array invalid', () => {
         "valid": false
     });
 });
+
+test('validator.validateObject with child object not set in values', () => {
+    const validator = createValidator(defaultRuleSet)({
+        foo: {
+            children: {
+                bar: {
+                    required: true
+                }
+            }
+        }
+    });
+    const result = validator.validateObject({});
+
+    expect(result).toStrictEqual({
+        "children": {
+            "foo": {
+                "children": {
+                    "bar": {
+                        "messages": [
+                            "This field is required",
+                        ],
+                        "valid": false
+                    }
+                },
+                "messages": [],
+                "valid": false
+            }
+        },
+        "valid": false
+    });
+});

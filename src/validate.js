@@ -285,6 +285,14 @@ export const validateField = (value, fieldsRules, name, ruleSet = defaultRuleSet
         ruleSet);
 };
 
+function fieldExistsInObject(object, key) {
+    return object && object[key];
+}
+
+function hasChildRules(fieldRules) {
+    return fieldRules && fieldRules.children;
+}
+
 /**
  * Validate given object against given fields rules
  * @param object
@@ -294,8 +302,12 @@ export const validateField = (value, fieldsRules, name, ruleSet = defaultRuleSet
  */
 export const validateObject = (object, fieldsRules, ruleSet = defaultRuleSet) => {
     const result = Object.entries(fieldsRules).reduce((result, [key,rules]) => {
-        const value = object ? object[key] : undefined;
         const fieldRules = prepareRules(rules, object);
+
+        const value = fieldExistsInObject(object, key)
+            ? object[key]
+            : (hasChildRules(fieldRules) ? {} : undefined);
+
         result[key] = validateFieldRules(value, fieldRules, ruleSet);
         return result;
     }, {});
